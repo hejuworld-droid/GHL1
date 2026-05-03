@@ -54,6 +54,8 @@ env:
   DELETE_OLD_WORKFLOW: true
 # Cache 加速编译
   CACHE_ACCELERATE: false
+# 强制使用 Node24 避免 Node20 弃用警告
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 ### 结束
 ### 请按需求修改以上内容
 
@@ -136,6 +138,7 @@ jobs:
 
     - name: Clone Openwrt Source Code
       run: |
+        echo "=== Disk space before clone ==="
         df -h
         git clone --depth=1 -b $REPO_BRANCH $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
@@ -147,7 +150,8 @@ jobs:
         echo "=== Removing .git directories to save space ==="
         rm -rf .git
         rm -rf feeds/*/.git
-        rm -rf package/**/.git || true
+        find . -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
+        echo "=== Disk space after cleanup ==="
         df -h
 
     - name: Accelerate
@@ -194,6 +198,8 @@ jobs:
     - name: Build OpenWrt
       run: |
         cd openwrt
+        echo "=== Disk space at build start ==="
+        df -h
         make -j$(nproc) || make -j1 V=s
         [ "$?" == 0 ] && echo "Compile_Result=true" >> $GITHUB_ENV || echo "Compile_Result=false" >> $GITHUB_ENV
 
@@ -244,7 +250,7 @@ jobs:
         overwrite: true
 
     - name: Delete old Workflow Runs
-      uses: GitRML/delete-workflow-runs@main
+      uses: Mattraks/delete-workflow-runs@v2
       if: env.DELETE_OLD_WORKFLOW == 'true' && !cancelled()
       with:
         retain_days: 1
