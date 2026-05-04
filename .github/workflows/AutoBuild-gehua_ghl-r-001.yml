@@ -255,15 +255,16 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: openwrt/bin/Firmware/*
         file_glob: true
-        tag: AutoUpdate
-        overwrite: true
+        tag: ${{ env.Compile_Date }}
+        overwrite: false
+        release_name: Firmware_${{ env.Compile_Date }}
 
     - name: Download Github API
       if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
       run: |
-        curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{github.repository}}/releases/tags/AutoUpdate" -o API
+        curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{github.repository}}/releases/tags/${{ env.Compile_Date }}" -o API
         if [ ! -s API ]; then
-          echo '{"tag_name":"AutoUpdate"}' > API
+          echo '{"tag_name":"${{ env.Compile_Date }}"}' > API
         fi
 
     - name: Upload Github API to Release
@@ -273,8 +274,8 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ./API
         file_glob: true
-        tag: AutoUpdate
-        overwrite: true
+        tag: ${{ env.Compile_Date }}
+        overwrite: false
 
     - name: Delete old Workflow Runs
       uses: Mattraks/delete-workflow-runs@v2
