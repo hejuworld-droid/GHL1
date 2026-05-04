@@ -97,7 +97,7 @@ CONFIG_TEMP=${CONFIG_TEMP}
 CONFIG_FILE=${CONFIG_FILE}
 AutoBuild_Features=${AutoBuild_Features}
 x86_Full_Images=${x86_Full_Images}
-AutoBuild_Fw=${AutoBuild_Fw}
+AutoBuild_Fw="${AutoBuild_Fw}"
 CustomFiles=${GITHUB_WORKSPACE}/CustomFiles
 Scripts=${GITHUB_WORKSPACE}/Scripts
 BASE_FILES=${GITHUB_WORKSPACE}/openwrt/package/base-files/files
@@ -111,17 +111,16 @@ FEEDS_CONF=${WORK}/feeds.conf.default
 Author_URL=${Author_URL}
 ENV_FILE=${GITHUB_ENV}
 Compile_Date=${Compile_Date}
-
-Author=${Author}
-Github=${Github}
-TARGET_PROFILE=${TARGET_PROFILE}
-TARGET_BOARD=${TARGET_BOARD}
-TARGET_SUBTARGET=${TARGET_SUBTARGET}
-TARGET_FLAG=${TARGET_FLAG}
-OP_VERSION=${OP_VERSION}
-OP_AUTHOR=${OP_AUTHOR}
-OP_REPO=${OP_REPO}
-OP_BRANCH=${OP_BRANCH}
+Author="${Author}"
+Github="${Github}"
+TARGET_PROFILE="${TARGET_PROFILE}"
+TARGET_BOARD="${TARGET_BOARD}"
+TARGET_SUBTARGET="${TARGET_SUBTARGET}"
+TARGET_FLAG="${TARGET_FLAG}"
+OP_VERSION="${OP_VERSION}"
+OP_AUTHOR="${OP_AUTHOR}"
+OP_REPO="${OP_REPO}"
+OP_BRANCH="${OP_BRANCH}"
 EOF
 	echo -e "### VARIABLE LIST ###\n$(cat ${GITHUB_ENV})\n"
 	source ${GITHUB_ENV}
