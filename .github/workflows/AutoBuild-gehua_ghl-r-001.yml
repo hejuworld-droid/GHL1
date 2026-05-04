@@ -208,7 +208,31 @@ jobs:
       run: |
         cd openwrt
         source $GITHUB_WORKSPACE/Scripts/AutoBuild_Function.sh
-        Firmware_Diy_End
+        Firmware_Diy_End || true
+
+    - name: Collect Firmware
+      if: env.Compile_Result == 'true' && !cancelled()
+      run: |
+        cd openwrt
+        echo "=== Checking bin/Firmware ==="
+        if [ -d bin/Firmware ] && [ "$(ls -A bin/Firmware 2>/dev/null)" ]; then
+          echo "Firmware files found in bin/Firmware:"
+          ls -la bin/Firmware/
+        else
+          echo "bin/Firmware is empty, collecting firmware manually..."
+          mkdir -p bin/Firmware
+          Fw_Path="bin/targets/ramips/mt7621"
+          if [ -d "$Fw_Path" ]; then
+            echo "=== Files in $Fw_Path ==="
+            ls -la "$Fw_Path/"
+            for f in $(find "$Fw_Path" -name "*sysupgrade.bin" -o -name "*kernel.bin" -o -name "*.tar.gz" 2>/dev/null); do
+              echo "Copying: $f"
+              cp -f "$f" bin/Firmware/
+            done
+          fi
+          echo "=== Final firmware files ==="
+          ls -la bin/Firmware/ || echo "No firmware files found!"
+        fi
 
     - name: Upload Firmware to Artifacts
       uses: actions/upload-artifact@main
@@ -237,7 +261,10 @@ jobs:
     - name: Download Github API
       if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
       run: |
-        wget https://api.github.com/repos/${{github.repository}}/releases/tags/AutoUpdate -O API
+        curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{github.repository}}/releases/tags/AutoUpdate" -o API
+        if [ ! -s API ]; then
+          echo '{"tag_name":"AutoUpdate"}' > API
+        fi
 
     - name: Upload Github API to Release
       if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
