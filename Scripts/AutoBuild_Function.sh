@@ -38,7 +38,7 @@ Firmware_Diy_Start() {
 	do
 		x86_Test="$(egrep -o "CONFIG_TARGET.*DEVICE.*=y" ${CONFIG_TEMP} | sed -r 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1/')"
 		[[ -n ${x86_Test} ]] && break
-		x86_Test="$(egrep -o "CONFIG_TARGET.*Generic=y" ${CONFIG_TEMP} | sed -R 's/CONFIG_TARGET_(.*)_Generic=y/\1/')"
+		x86_Test="$(egrep -o "CONFIG_TARGET.*Generic=y" ${CONFIG_TEMP} | sed -r 's/CONFIG_TARGET_(.*)_Generic=y/\1/')"
 		[[ -z ${x86_Test} ]] && break
 	done
 	if [[ ${x86_Test} == x86_64 ]]
@@ -264,7 +264,7 @@ EOF
 						elif [[ $i =~ "-${TARGET_PROFILE}.patch" ]]
 						then
 							ECHO "Found profile ${TARGET_PROFILE} patch file: $i"
-							patch < $j -p1 -d ${WORK}
+							patch < $i -p1 -d ${WORK}
 						fi
 					fi
 				done ; unset i
@@ -325,7 +325,7 @@ EOF
 Firmware_Diy_End() {
 	ECHO "[Firmware_Diy_End] Starting ..."
 	source ${GITHUB_ENV}
-	ECHO "[$(date "+%H:%M:%S")] Actions Available: $(df -h | grep "/dev/root" | awk '{printf $4}')"
+	ECHO "[$(date "+%H:%M:%S")] Actions Avaliable: $(df -h | grep "/dev/root" | awk '{printf $4}')"
 	cd ${WORK}
 	echo -e "### FIRMWARE OUTPUT ###"
 	du -ah bin/targets | egrep -v "${Regex_Skip}" | grep -v 'ipk'
@@ -448,7 +448,7 @@ PKG_Finder() {
 		return 0
 	fi
 	Result=$(find $2 -name $3 -type $1 -exec echo {} \; 2> /dev/null)
-	[[ -n $Result ]] && echo "${Result}"
+	[[ -n ${Result} ]] && echo "${Result}"
 }
 
 CD() {
@@ -519,10 +519,10 @@ Copy() {
 	MKDIR $2
 	if [[ -z $3 ]]
 	then
-		ECHO "[C] Borrowing $(basename $1) to $2 ..."
+		ECHO "[C] Copying $(basename $1) to $2 ..."
 		cp -a $1 $2
 	else
-		ECHO "[R] Borrowing $(basename $1) to $2 [$3] ..."
+		ECHO "[R] Copying $(basename $1) to $2 [$3] ..."
 		cp -a $1 $2/$3
 	fi
 	[[ $? == 0 ]] && ECHO "Done"
@@ -552,7 +552,7 @@ ReleaseDL() {
 	then
 		ECHO "Failed to download API ${PKG_NAME} ..."
 	fi
-	for i in $(seq 0 $(cat ${API_FILE} | jq ".assets | length" 2> /dev/null)
+	for i in $(seq 0 $(cat ${API_FILE} | jq ".assets | length" 2> /dev/null))
 	do
 		eval name=$(cat ${API_FILE} | jq ".assets[${i}].name" 2> /dev/null)
 		[[ ${name} == null ]] && continue
@@ -563,8 +563,7 @@ ReleaseDL() {
 			then
 				# echo $browser_download_url
 				[[ ${TARGET_FILE_RENAME} ]] && _FILE=${TARGET_FILE_RENAME} || _FILE=${FILE_NAME}
-    
-				ECHO "Downloading link ${browser_download_url} ..."
+    				ECHO "Downloading link ${browser_download_url} ..."
 				wget --quiet --no-check-certificate \
 					--tries 5 --timeout 20 \
 					${browser_download_url} \
@@ -587,7 +586,7 @@ ClashDL() {
 	TMP_PATH=/opt/OpenClash
 	
 	PLATFORM=$1
-CORE_TYPE=$2
+	CORE_TYPE=$2
 	
 	if [[ ! -n $(ls -1 $TMP_PATH 2> /dev/null) ]]
 	then
@@ -596,10 +595,10 @@ CORE_TYPE=$2
 	
 	case $CORE_TYPE in
 	dev | meta)
-		CORE_PATH=$TMP_PAUD/dev/$CORE_TYPE
+		CORE_PATH=$TMP_PATH/dev/$CORE_TYPE
 	;;
 	premium | tun)
-		CORE_PATH=$TMP_PATN/dev/premium
+		CORE_PATH=$TMP_PATH/dev/premium
 	;;
 	esac
 	
@@ -629,8 +628,8 @@ CORE_TYPE=$2
 		for i in meta
 		do
 			cd $TMP_PATH/dev/$i
-			SUP_PLATFORM=$(ls -1 2> /dev/null | sed -r 's/clash-linux-(.*).tar.gz/\u/')
-			ECHO "CORE Supported platform: \n$SUP_PLATFORM"
+			SUP_PLATDORM=$(ls -1 2> /dev/null | sed -r 's/clash-linux-(.*).tar.gz/\1/')
+			ECHO "CORE Supported platform: \n$SUP_PLATDORM"
 			cd - > /dev/null
 		done
 		return
@@ -640,7 +639,7 @@ CORE_TYPE=$2
 	MKDIR ${BASE_FILES}/etc/openclash/core
 	case $CORE_TYPE in
 	dev | meta)
-		tar -xvf $CORE_PATH/$TARGET_CORE -C ${TMP_PATH}
+		tar -xvzf $CORE_PATH/$TARGET_CORE -C ${TMP_PATH}
 		if [[ $CORE_TYPE == dev ]]
 		then
 			chmod 777 ${TMP_PATH}/clash
