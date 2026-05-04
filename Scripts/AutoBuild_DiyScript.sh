@@ -76,24 +76,24 @@ Firmware_Diy() {
 	case "${OP_AUTHOR}/${OP_REPO}:${OP_BRANCH}" in
 	coolsnowwolf/lede:master)
 
-		sed -i '/check_signature/d' etc/opkg.conf
+		sed -i '/check_signature/d' etc/opkg.conf 2>/dev/null || true
 
-		sed -i 's|downloads.openwrt.org|mirrors.tuna.tsinghua.edu.cn/openwrt|g' etc/opkg/customfeeds.conf
-		sed -i 's|downloads.openwrt.org|mirrors.tuna.tsinghua.edu.cn/openwrt|g' etc/opkg/distfeeds.conf
+		sed -i 's|downloads.openwrt.org|mirrors.tuna.tsinghua.edu.cn/openwrt|g' etc/opkg/customfeeds.conf 2>/dev/null || true
+		sed -i 's|downloads.openwrt.org|mirrors.tuna.tsinghua.edu.cn/openwrt|g' etc/opkg/distfeeds.conf 2>/dev/null || true
 
-		sed -i "s/hostname='OpenWrt'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
-		sed -i "s|option hostname.*|option hostname 'OpenWrt'|g" package/base-files/files/bin/config_generate
+		sed -i "s/hostname='OpenWrt'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate 2>/dev/null || true
+		sed -i "s|option hostname.*|option hostname 'OpenWrt'|g" package/base-files/files/bin/config_generate 2>/dev/null || true
 
-		sed -i 's/192.168.1.1/192.168.6.1/g' package/base-files/files/bin/config_generate
+		sed -i 's/192.168.1.1/192.168.6.1/g' package/base-files/files/bin/config_generate 2>/dev/null || true
 
-		sed -i 's|option type dns|option type dns\n\toption noresolv 1|g' package/network/services/dnsmasq/files/dhcp.conf
+		sed -i 's|option type dns|option type dns\n\toption noresolv 1|g' package/network/services/dnsmasq/files/dhcp.conf 2>/dev/null || true
 
-		sed -i '/customized by OpenClash/d' package/lean/default-settings/files/zzz-default-settings
-		sed -i '/option cpuinfo_arm/d' package/lean/default-settings/files/zzz-default-settings
+		sed -i '/customized by OpenClash/d' package/lean/default-settings/files/zzz-default-settings 2>/dev/null || true
+		sed -i '/option cpuinfo_arm/d' package/lean/default-settings/files/zzz-default-settings 2>/dev/null || true
 
-		sed -i 's|option http_port 80|option http_port 80\n\toption redirect_https 0|g' feeds/luci/modules/luci-base/root/etc/config/uhttpd
+		sed -i 's|option http_port 80|option http_port 80\n\toption redirect_https 0|g' feeds/luci/modules/luci-base/root/etc/config/uhttpd 2>/dev/null || true
 
-		sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+		sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile 2>/dev/null || true
 
 		AddPackage themes jerrykuku luci-theme-argon 18.06
 		AddPackage other jerrykuku luci-app-argon-config master
